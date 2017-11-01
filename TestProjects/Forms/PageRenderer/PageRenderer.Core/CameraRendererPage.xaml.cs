@@ -1,4 +1,4 @@
-﻿namespace PageRendererExample.Pages
+﻿namespace PageRendererExample
 {
     public partial class CameraRendererPage : CameraRendererContentPage
     {
@@ -8,4 +8,3 @@
         }
     }
 }
-

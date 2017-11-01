@@ -29,7 +29,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Model\MultiItemTemplateModel.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\..\..\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="App.cs" />
     <Compile Include="ListItem.cs" />
     <Compile Include="ViewModels\ComposeMessageViewModel.cs" />
@@ -46,6 +48,8 @@
     <Compile Include="ViewModels\ExampleViewPagerViewModel.cs" />
     <Compile Include="ViewModels\ExampleRecyclerViewModel.cs" />
     <Compile Include="ViewModels\SecondHostViewModel.cs" />
+    <Compile Include="ViewModels\ConfirmationViewModel.cs" />
+    <Compile Include="Model\ConfirmationConfiguration.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

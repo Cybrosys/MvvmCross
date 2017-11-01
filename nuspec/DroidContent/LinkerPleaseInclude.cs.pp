@@ -4,6 +4,8 @@ using Android.App;
 using Android.Views;
 using Android.Widget;
 using MvvmCross.Binding.BindingContext;
+using MvvmCross.Core.Navigation;
+using MvvmCross.Core.ViewModels;
 
 namespace $rootnamespace$
 {
@@ -62,6 +64,11 @@ namespace $rootnamespace$
         {
             radioButton.CheckedChange += (sender, args) => radioButton.Checked = args.IsChecked;
         }
+		
+		public void Include(RatingBar ratingBar)
+        {
+            ratingBar.RatingBarChange += (sender, args) => ratingBar.Rating = 0 + ratingBar.Rating;
+        }
 
         public void Include(Activity act)
         {
@@ -95,6 +102,11 @@ namespace $rootnamespace$
             context.Dispose();
             var context2 = new MvxTaskBasedBindingContext();
             context2.Dispose();
+        }
+
+        public void Include(MvxNavigationService service, IMvxViewModelLoader loader)
+        {
+            service = new MvxNavigationService(null, loader);
         }
     }
 }

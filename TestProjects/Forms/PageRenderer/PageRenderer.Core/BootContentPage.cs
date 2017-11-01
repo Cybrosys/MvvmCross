@@ -1,8 +1,6 @@
-﻿
-using MvvmCross.Forms.Presenter.Core;
-using PageRendererExample.ViewModels;
+﻿using MvvmCross.Forms.Views;
 
-namespace PageRendererExample.Pages
+namespace PageRendererExample
 {
     /// <summary>
     /// This is so that there is a base class that can be referenced in the XAML file.
@@ -11,4 +9,3 @@ namespace PageRendererExample.Pages
     {
     }
 }
-

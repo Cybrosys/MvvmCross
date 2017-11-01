@@ -5,17 +5,15 @@
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+using System.Reflection;
+using MvvmCross.Core.ViewModels;
+using MvvmCross.Core.Views;
+using MvvmCross.Platform.Exceptions;
+using UIKit;
+
 namespace MvvmCross.iOS.Views
 {
-    using System;
-    using System.Reflection;
-
-    using MvvmCross.Core.ViewModels;
-    using MvvmCross.Core.Views;
-    using MvvmCross.Platform.Exceptions;
-
-    using UIKit;
-
     public class MvxIosViewsContainer
         : MvxViewsContainer
         , IMvxIosViewsContainer
@@ -26,22 +24,22 @@ namespace MvvmCross.iOS.Views
         {
             try
             {
-                this.CurrentRequest = request;
-                var viewType = this.GetViewType(request.ViewModelType);
+                CurrentRequest = request;
+                var viewType = GetViewType(request.ViewModelType);
                 if (viewType == null)
                     throw new MvxException("View Type not found for " + request.ViewModelType);
 
-                var view = this.CreateViewOfType(viewType, request);
+                var view = CreateViewOfType(viewType, request);
                 view.Request = request;
                 return view;
             }
             finally
             {
-                this.CurrentRequest = null;
+                CurrentRequest = null;
             }
         }
 
-        protected virtual IMvxIosView CreateViewOfType(Type viewType, MvxViewModelRequest request)
+        public virtual IMvxIosView CreateViewOfType(Type viewType, MvxViewModelRequest request)
         {
             var storyboardAttribute = viewType.GetCustomAttribute<MvxFromStoryboardAttribute>();
             if (storyboardAttribute != null)
@@ -68,7 +66,7 @@ namespace MvvmCross.iOS.Views
         public virtual IMvxIosView CreateView(IMvxViewModel viewModel)
         {
             var request = new MvxViewModelInstanceRequest(viewModel);
-            var view = this.CreateView(request);
+            var view = CreateView(request);
             return view;
         }
     }

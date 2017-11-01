@@ -1,11 +1,10 @@
-﻿
-using MvvmCross.Platform;
-using MvvmCross.Forms.Presenter.Core;
+﻿using MvvmCross.Platform;
 using MvvmCross.Core.ViewModels;
+using MvvmCross.Forms.Platform;
 
 namespace PageRendererExample
 {
-    public partial class PageRendererExampleApp : MvxFormsApp
+    public partial class PageRendererExampleApp : MvxFormsApplication
     {
         public PageRendererExampleApp()
         {
@@ -19,4 +18,3 @@ namespace PageRendererExample
         }
     }
 }
-

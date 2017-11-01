@@ -5,14 +5,17 @@
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+using MvvmCross.Core.ViewModels;
+
 namespace MvvmCross.iOS.Views
 {
-    using MvvmCross.Core.ViewModels;
-
     public interface IMvxIosViewCreator : IMvxCurrentRequest
     {
         IMvxIosView CreateView(MvxViewModelRequest request);
 
         IMvxIosView CreateView(IMvxViewModel viewModel);
+
+        IMvxIosView CreateViewOfType(Type viewType, MvxViewModelRequest request);
     }
 }

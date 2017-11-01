@@ -1,20 +1,16 @@
+﻿using System;
+using Android.Content;
 using Android.OS;
 using Android.Runtime;
-using Android.Views;
-using MvvmCross.Platform.Core;
-using System;
 using Android.Support.V17.Leanback.App;
-
-
-using MvvmCross.Droid.Shared.Fragments.EventSource;
-using MvvmCross.Droid.Shared;
-using Android.Content;
+using Android.Views;
+using MvvmCross.Droid.Views;
+using MvvmCross.Platform.Core;
 
 namespace MvvmCross.Droid.Support.V17.Leanback.Fragments.EventSource
 {
     public class MvxEventSourceGuidedStepSupportFragment
-        : GuidedStepSupportFragment
-        , IMvxEventSourceFragment
+        : GuidedStepSupportFragment, IMvxEventSourceFragment
     {
         public event EventHandler<MvxValueEventArgs<Context>> AttachCalled;
 

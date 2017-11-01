@@ -3,12 +3,8 @@ using Android.Content;
 
 using MvvmCross.Droid.Platform;
 using MvvmCross.Core.ViewModels;
-using MvvmCross.Droid.Views;
-using MvvmCross.Forms.Presenter.Droid;
 using MvvmCross.Platform;
-using MvvmCross.Core.Views;
-
-using PageRendererExample.ViewModels;
+using PageRendererExample;
 
 namespace PageRendererExample.UI.Droid
 {
@@ -20,17 +16,8 @@ namespace PageRendererExample.UI.Droid
 
         protected override IMvxApplication CreateApp()
         {
-            return new MvvmApp();
-        }
-
-        protected override IMvxAndroidViewPresenter CreateViewPresenter()
-        {
-            var presenter = new MvxFormsDroidPagePresenter();
-            Mvx.RegisterSingleton<IMvxViewPresenter>(presenter);
             Mvx.LazyConstructAndRegisterSingleton<IImageHolder, ImageHolder>();
-
-            return presenter;
+            return new CoreApp();
         }
     }
 }
-

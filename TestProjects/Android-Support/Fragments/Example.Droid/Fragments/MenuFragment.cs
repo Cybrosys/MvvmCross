@@ -4,15 +4,15 @@ using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Views;
-using MvvmCross.Binding.Droid.BindingContext;
-using MvvmCross.Droid.Shared.Attributes;
-using MvvmCross.Droid.Support.V4;
 using Example.Core.ViewModels;
 using Example.Droid.Activities;
+using MvvmCross.Binding.Droid.BindingContext;
+using MvvmCross.Droid.Views.Attributes;
+using MvvmCross.Droid.Support.V4;
 
 namespace Example.Droid.Fragments
 {
-    [MvxFragment(typeof(MainViewModel), Resource.Id.navigation_frame)]
+    [MvxFragmentPresentation(typeof(MainViewModel), Resource.Id.navigation_frame)]
     [Register("example.droid.fragments.MenuFragment")]
     public class MenuFragment : MvxFragment<MenuViewModel>, NavigationView.IOnNavigationItemSelectedListener
     {
@@ -66,7 +66,7 @@ namespace Example.Droid.Fragments
                 ViewModel.ShowViewModelAndroid(typeof(ExampleRecyclerViewModel));
                 break;
             case Resource.Id.nav_recyclerview_multiitem:
-                ViewModel.ShowViewModelAndroid(typeof (RecyclerViewMultiItemTemplateViewModel));
+                ViewModel.ShowViewModelAndroid(typeof(RecyclerViewMultiItemTemplateViewModel));
                 break;
             case Resource.Id.nav_compose_message:
                 ViewModel.ShowViewModelAndroid(typeof(ComposeMessageViewModel));

@@ -5,8 +5,8 @@
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
-using MvvmCross.Platform.Platform;
 using System.Collections.Generic;
+using MvvmCross.Platform.Platform;
 
 namespace MvvmCross.Plugins.JsonLocalization
 {
@@ -41,6 +41,19 @@ namespace MvvmCross.Plugins.JsonLocalization
                 return key;
 
             throw new KeyNotFoundException("Could not find text lookup for " + key);
+        }
+
+        public override bool TryGetText(out string textValue, string namespaceKey, string typeKey, string name)
+        {
+            var key = MakeLookupKey(namespaceKey, typeKey, name);
+            
+            if (_entries.TryGetValue(key, out textValue))
+                return true;
+
+            MvxTrace.Trace("Text value missing for " + key);
+
+            textValue = key;
+            return false;
         }
 
         #endregion Implementation of IMvxTextProvider

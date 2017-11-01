@@ -1,14 +1,14 @@
-// MvxWpfView.cs
+﻿// MvxWpfView.cs
 
 // MvvmCross is licensed using Microsoft Public License (Ms-PL)
 // Contributions and inspirations noted in readme.md and license.txt
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
-using System.Windows.Controls;
 using MvvmCross.Core.ViewModels;
 using System;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace MvvmCross.Wpf.Views
 {
@@ -18,7 +18,7 @@ namespace MvvmCross.Wpf.Views
 
         public IMvxViewModel ViewModel
         {
-            get { return _viewModel; }
+            get => _viewModel;
             set
             {
                 _viewModel = value;
@@ -34,14 +34,14 @@ namespace MvvmCross.Wpf.Views
 
         private void MvxWpfView_Unloaded(object sender, RoutedEventArgs e)
         {
-            ViewModel?.Disappearing();
-            ViewModel?.Disappeared();
+            ViewModel?.ViewDisappearing();
+            ViewModel?.ViewDisappeared();
         }
 
         private void MvxWpfView_Loaded(object sender, RoutedEventArgs e)
         {
-            ViewModel?.Appearing();
-            ViewModel?.Appeared();
+            ViewModel?.ViewAppearing();
+            ViewModel?.ViewAppeared();
         }
 
         public void Dispose()

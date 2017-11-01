@@ -1,5 +1,4 @@
-﻿using System;
-using Android.Support.V4.Widget;
+﻿using Android.Support.V4.Widget;
 
 namespace Example.Droid.Activities
 {
@@ -8,4 +7,3 @@ namespace Example.Droid.Activities
 		DrawerLayout DrawerLayout { get; set; }
 	}
 }
-

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MvvmCross.Core.Navigation;
 using MvvmCross.Core.ViewModels;
@@ -13,12 +10,10 @@ namespace MvvmCross.Test.Stubs
         : IMvxNavigationFacade
     {
         public Task<MvxViewModelRequest> BuildViewModelRequest(string url,
-            IDictionary<string, string> currentParameters, MvxRequestedBy requestedBy)
+            IDictionary<string, string> currentParameters)
         {
-
             var viewModelType = currentParameters["vm"] == "a" ? typeof(ViewModelA) : typeof(ViewModelB);
-
-            return Task.FromResult(new MvxViewModelRequest(viewModelType, new MvxBundle(), null, requestedBy));
+            return Task.FromResult(new MvxViewModelRequest(viewModelType, null, null));
         }
     }
 }

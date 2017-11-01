@@ -5,21 +5,28 @@
 // 
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
-namespace MvvmCross.WindowsUWP.Platform
+using System.Collections.Generic;
+using Windows.UI.Xaml.Controls;
+using MvvmCross.Core.Platform;
+using MvvmCross.Core.ViewModels;
+using MvvmCross.Core.Views;
+using MvvmCross.Platform;
+using MvvmCross.Platform.Exceptions;
+using MvvmCross.Platform.Platform;
+using MvvmCross.Platform.Plugins;
+using MvvmCross.Uwp.Views;
+using MvvmCross.Uwp.Views.Suspension;
+using MvvmCross.Platform.Converters;
+using MvvmCross.Binding.Bindings.Target.Construction;
+using MvvmCross.Binding.BindingContext;
+using MvvmCross.Binding;
+using MvvmCross.Binding.Uwp;
+using MvvmCross.Binding.Binders;
+using System;
+using System.Reflection;
+
+namespace MvvmCross.Uwp.Platform
 {
-    using System.Collections.Generic;
-
-    using Windows.UI.Xaml.Controls;
-
-    using MvvmCross.Core.Platform;
-    using MvvmCross.Core.ViewModels;
-    using MvvmCross.Core.Views;
-    using MvvmCross.Platform;
-    using MvvmCross.Platform.Platform;
-    using MvvmCross.Platform.Plugins;
-    using MvvmCross.WindowsUWP.Views;
-    using MvvmCross.WindowsUWP.Views.Suspension;
-
     public abstract class MvxWindowsSetup
         : MvxSetup
     {
@@ -29,12 +36,12 @@ namespace MvvmCross.WindowsUWP.Platform
         protected MvxWindowsSetup(Frame rootFrame, string suspensionManagerSessionStateKey = null)
             : this(new MvxWrappedFrame(rootFrame))
         {
-            this._suspensionManagerSessionStateKey = suspensionManagerSessionStateKey;
+            _suspensionManagerSessionStateKey = suspensionManagerSessionStateKey;
         }
 
         protected MvxWindowsSetup(IMvxWindowsFrame rootFrame)
         {
-            this._rootFrame = rootFrame;
+            _rootFrame = rootFrame;
         }
 
         protected override IMvxTrace CreateDebugTrace()
@@ -44,17 +51,17 @@ namespace MvvmCross.WindowsUWP.Platform
 
         protected override void InitializePlatformServices()
         {
-            this.InitializeSuspensionManager();
+            InitializeSuspensionManager();
             base.InitializePlatformServices();
         }
 
         protected virtual void InitializeSuspensionManager()
         {
-            var suspensionManager = this.CreateSuspensionManager();
+            var suspensionManager = CreateSuspensionManager();
             Mvx.RegisterSingleton(suspensionManager);
 
-            if (this._suspensionManagerSessionStateKey != null)
-                suspensionManager.RegisterFrame(this._rootFrame, this._suspensionManagerSessionStateKey);
+            if (_suspensionManagerSessionStateKey != null)
+                suspensionManager.RegisterFrame(_rootFrame, _suspensionManagerSessionStateKey);
         }
 
         protected virtual IMvxSuspensionManager CreateSuspensionManager()
@@ -64,12 +71,18 @@ namespace MvvmCross.WindowsUWP.Platform
 
         protected override IMvxPluginManager CreatePluginManager()
         {
-            return new MvxFilePluginManager(new List<string>() { ".WindowsUWP", ".WindowsCommon" });
+            return new MvxFilePluginManager(new List<string>() { ".Uwp", ".WindowsCommon" });
         }
 
         protected sealed override IMvxViewsContainer CreateViewsContainer()
         {
-            return this.CreateStoreViewsContainer();
+            var container = CreateStoreViewsContainer();
+            Mvx.RegisterSingleton<IMvxWindowsViewModelRequestTranslator>(container);
+            Mvx.RegisterSingleton<IMvxWindowsViewModelLoader>(container);
+            var viewsContainer = container as MvxViewsContainer;
+            if (viewsContainer == null)
+                throw new MvxException("CreateViewsContainer must return an MvxViewsContainer");
+            return container;
         }
 
         protected virtual IMvxStoreViewsContainer CreateStoreViewsContainer()
@@ -79,7 +92,7 @@ namespace MvvmCross.WindowsUWP.Platform
 
         protected override IMvxViewDispatcher CreateViewDispatcher()
         {
-            return this.CreateViewDispatcher(this._rootFrame);
+            return CreateViewDispatcher(_rootFrame);
         }
 
         protected virtual IMvxWindowsViewPresenter CreateViewPresenter(IMvxWindowsFrame rootFrame)
@@ -89,8 +102,62 @@ namespace MvvmCross.WindowsUWP.Platform
 
         protected virtual MvxWindowsViewDispatcher CreateViewDispatcher(IMvxWindowsFrame rootFrame)
         {
-            var presenter = this.CreateViewPresenter(this._rootFrame);
+            var presenter = CreateViewPresenter(_rootFrame);
             return new MvxWindowsViewDispatcher(presenter, rootFrame);
+        }
+
+        protected override void InitializeLastChance()
+        {
+            InitializeBindingBuilder();
+            base.InitializeLastChance();
+        }
+
+        protected virtual void InitializeBindingBuilder()
+        {
+            RegisterBindingBuilderCallbacks();
+            var bindingBuilder = CreateBindingBuilder();
+            bindingBuilder.DoRegistration();
+        }
+
+        protected virtual void RegisterBindingBuilderCallbacks()
+        {
+            Mvx.CallbackWhenRegistered<IMvxValueConverterRegistry>(FillValueConverters);
+            Mvx.CallbackWhenRegistered<IMvxTargetBindingFactoryRegistry>(FillTargetFactories);
+            Mvx.CallbackWhenRegistered<IMvxBindingNameRegistry>(FillBindingNames);
+        }
+
+        protected virtual void FillBindingNames(IMvxBindingNameRegistry registry)
+        {
+            // this base class does nothing
+        }
+
+        protected virtual void FillValueConverters(IMvxValueConverterRegistry registry)
+        {
+            registry.Fill(ValueConverterAssemblies);
+            registry.Fill(ValueConverterHolders);
+        }
+
+        protected virtual void FillTargetFactories(IMvxTargetBindingFactoryRegistry registry)
+        {
+            // this base class does nothing
+        }
+
+        protected virtual List<Type> ValueConverterHolders => new List<Type>();
+
+        protected virtual IEnumerable<Assembly> ValueConverterAssemblies
+        {
+            get
+            {
+                var toReturn = new List<Assembly>();
+                toReturn.AddRange(GetViewModelAssemblies());
+                toReturn.AddRange(GetViewAssemblies());
+                return toReturn;
+            }
+        }
+
+        protected virtual MvxBindingBuilder CreateBindingBuilder()
+        {
+            return new MvxWindowsBindingBuilder();
         }
 
         protected override IMvxNameMapping CreateViewToViewModelNaming()

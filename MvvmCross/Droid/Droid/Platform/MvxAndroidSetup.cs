@@ -1,55 +1,54 @@
-// MvxAndroidSetup.cs
+﻿// MvxAndroidSetup.cs
 
 // MvvmCross is licensed using Microsoft Public License (Ms-PL)
 // Contributions and inspirations noted in readme.md and license.txt
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Android.Content;
+using Android.Views;
+using MvvmCross.Binding;
+using MvvmCross.Binding.Binders;
+using MvvmCross.Binding.BindingContext;
+using MvvmCross.Binding.Bindings.Target.Construction;
+using MvvmCross.Binding.Droid;
+using MvvmCross.Binding.Droid.Binders.ViewTypeResolvers;
+using MvvmCross.Binding.Droid.Views;
+using MvvmCross.Core.Platform;
+using MvvmCross.Core.ViewModels;
+using MvvmCross.Core.Views;
+using MvvmCross.Droid.Views;
+using MvvmCross.Platform;
+using MvvmCross.Platform.Converters;
+using MvvmCross.Platform.Droid;
+using MvvmCross.Platform.Droid.Platform;
+using MvvmCross.Platform.Exceptions;
+using MvvmCross.Platform.IoC;
+using MvvmCross.Platform.Platform;
+using MvvmCross.Platform.Plugins;
+
 namespace MvvmCross.Droid.Platform
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
-
-    using Android.Content;
-    using Android.Views;
-
-    using MvvmCross.Binding.Binders;
-    using MvvmCross.Binding.BindingContext;
-    using MvvmCross.Binding.Bindings.Target.Construction;
-    using MvvmCross.Binding.Droid;
-    using MvvmCross.Binding.Droid.Binders.ViewTypeResolvers;
-    using MvvmCross.Core.Platform;
-    using MvvmCross.Core.ViewModels;
-    using MvvmCross.Core.Views;
-    using MvvmCross.Droid.Views;
-    using MvvmCross.Platform;
-    using MvvmCross.Platform.Converters;
-    using MvvmCross.Platform.Droid;
-    using MvvmCross.Platform.Droid.Platform;
-    using MvvmCross.Platform.Exceptions;
-    using MvvmCross.Platform.IoC;
-    using MvvmCross.Platform.Platform;
-    using MvvmCross.Platform.Plugins;
-
     public abstract class MvxAndroidSetup
-        : MvxSetup
-          , IMvxAndroidGlobals
+        : MvxSetup, IMvxAndroidGlobals
     {
         private readonly Context _applicationContext;
 
         protected MvxAndroidSetup(Context applicationContext)
         {
-            this._applicationContext = applicationContext;
+            _applicationContext = applicationContext;
         }
 
         #region IMvxAndroidGlobals Members
 
-        public virtual string ExecutableNamespace => this.GetType().Namespace;
+        public virtual string ExecutableNamespace => GetType().Namespace;
 
-        public virtual Assembly ExecutableAssembly => this.GetType().Assembly;
+        public virtual Assembly ExecutableAssembly => GetType().Assembly;
 
-        public Context ApplicationContext => this._applicationContext;
+        public Context ApplicationContext => _applicationContext;
 
         #endregion IMvxAndroidGlobals Members
 
@@ -65,7 +64,7 @@ namespace MvvmCross.Droid.Platform
 
         protected override void InitializePlatformServices()
         {
-            this.InitializeLifetimeMonitor();
+            InitializeLifetimeMonitor();
 
             Mvx.RegisterSingleton<IMvxAndroidGlobals>(this);
 
@@ -82,7 +81,7 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual void InitializeLifetimeMonitor()
         {
-            var lifetimeMonitor = this.CreateLifetimeMonitor();
+            var lifetimeMonitor = CreateLifetimeMonitor();
             Mvx.RegisterSingleton<IMvxAndroidActivityLifetimeListener>(lifetimeMonitor);
             Mvx.RegisterSingleton<IMvxAndroidCurrentTopActivity>(lifetimeMonitor);
             Mvx.RegisterSingleton<IMvxLifetime>(lifetimeMonitor);
@@ -95,7 +94,7 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual void InitializeSavedStateConverter()
         {
-            var converter = this.CreateSavedStateConverter();
+            var converter = CreateSavedStateConverter();
             Mvx.RegisterSingleton(converter);
         }
 
@@ -106,7 +105,7 @@ namespace MvvmCross.Droid.Platform
 
         protected sealed override IMvxViewsContainer CreateViewsContainer()
         {
-            var container = this.CreateViewsContainer(this._applicationContext);
+            var container = CreateViewsContainer(_applicationContext);
             Mvx.RegisterSingleton<IMvxAndroidViewModelRequestTranslator>(container);
             Mvx.RegisterSingleton<IMvxAndroidViewModelLoader>(container);
             var viewsContainer = container as MvxViewsContainer;
@@ -117,22 +116,21 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual IMvxAndroidViewPresenter CreateViewPresenter()
         {
-            return new MvxAndroidViewPresenter();
+            return new MvxAndroidViewPresenter(AndroidViewAssemblies);
         }
 
         protected override IMvxViewDispatcher CreateViewDispatcher()
         {
-            var presenter = this.CreateViewPresenter();
+            var presenter = CreateViewPresenter();
             Mvx.RegisterSingleton(presenter);
             return new MvxAndroidViewDispatcher(presenter);
         }
 
         protected override void InitializeLastChance()
         {
-            this.InitializeSavedStateConverter();
+            InitializeSavedStateConverter();
 
-            Mvx.RegisterSingleton<IMvxChildViewModelCache>(new MvxChildViewModelCache());
-            this.InitializeBindingBuilder();
+            InitializeBindingBuilder();
             base.InitializeLastChance();
         }
 
@@ -143,8 +141,8 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual void InitializeBindingBuilder()
         {
-            var bindingBuilder = this.CreateBindingBuilder();
-            this.RegisterBindingBuilderCallbacks();
+            var bindingBuilder = CreateBindingBuilder();
+            RegisterBindingBuilderCallbacks();
             bindingBuilder.DoRegistration();
         }
 
@@ -158,7 +156,7 @@ namespace MvvmCross.Droid.Platform
             Mvx.CallbackWhenRegistered<IMvxNamespaceListViewTypeResolver>(FillNamespaceListViewTypeResolver);
         }
 
-        protected virtual MvxAndroidBindingBuilder CreateBindingBuilder()
+        protected virtual MvxBindingBuilder CreateBindingBuilder()
         {
             var bindingBuilder = new MvxAndroidBindingBuilder();
             return bindingBuilder;
@@ -166,7 +164,7 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual void FillViewTypes(IMvxTypeCache<View> cache)
         {
-            foreach (var assembly in this.AndroidViewAssemblies)
+            foreach (var assembly in AndroidViewAssemblies)
             {
                 cache.AddAssembly(assembly);
             }
@@ -179,7 +177,7 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual void FillAxmlViewTypeResolver(IMvxAxmlNameViewTypeResolver viewTypeResolver)
         {
-            foreach (var kvp in this.ViewNamespaceAbbreviations)
+            foreach (var kvp in ViewNamespaceAbbreviations)
             {
                 viewTypeResolver.ViewNamespaceAbbreviations[kvp.Key] = kvp.Value;
             }
@@ -187,7 +185,7 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual void FillNamespaceListViewTypeResolver(IMvxNamespaceListViewTypeResolver viewTypeResolver)
         {
-            foreach (var viewNamespace in this.ViewNamespaces)
+            foreach (var viewNamespace in ViewNamespaces)
             {
                 viewTypeResolver.Add(viewNamespace);
             }
@@ -195,8 +193,8 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual void FillValueConverters(IMvxValueConverterRegistry registry)
         {
-            registry.Fill(this.ValueConverterAssemblies);
-            registry.Fill(this.ValueConverterHolders);
+            registry.Fill(ValueConverterAssemblies);
+            registry.Fill(ValueConverterHolders);
         }
 
         protected virtual IEnumerable<Type> ValueConverterHolders => new List<Type>();
@@ -214,7 +212,7 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual IDictionary<string, string> ViewNamespaceAbbreviations => new Dictionary<string, string>
         {
-            {"Mvx", "MvvmCross.Binding.Droid.Views"}
+            { "Mvx", "MvvmCross.Binding.Droid.Views" }
         };
 
         protected virtual IEnumerable<string> ViewNamespaces => new List<string>
@@ -227,9 +225,9 @@ namespace MvvmCross.Droid.Platform
 
         protected virtual IEnumerable<Assembly> AndroidViewAssemblies => new List<Assembly>()
         {
-            typeof (Android.Views.View).Assembly,
-            typeof (MvvmCross.Binding.Droid.Views.MvxDatePicker).Assembly,
-            this.GetType().Assembly,
+            typeof(View).Assembly,
+            typeof(MvxDatePicker).Assembly,
+            GetType().Assembly,
         };
 
         protected virtual void FillTargetFactories(IMvxTargetBindingFactoryRegistry registry)
@@ -239,7 +237,7 @@ namespace MvvmCross.Droid.Platform
 
         protected override IMvxNameMapping CreateViewToViewModelNaming()
         {
-            return new MvxPostfixAwareViewToViewModelNameMapping("View", "Activity");
+            return new MvxPostfixAwareViewToViewModelNameMapping("View", "Activity", "Fragment");
         }
     }
 }

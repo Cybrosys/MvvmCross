@@ -1,14 +1,14 @@
-// MvxEnumerableExtensions.cs
+﻿// MvxEnumerableExtensions.cs
 
 // MvvmCross is licensed using Microsoft Public License (Ms-PL)
 // Contributions and inspirations noted in readme.md and license.txt
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System.Collections;
+
 namespace MvvmCross.Binding.ExtensionMethods
 {
-    using System.Collections;
-
     public static class MvxEnumerableExtensions
     {
         public static int Count(this IEnumerable enumerable)
@@ -68,7 +68,7 @@ namespace MvvmCross.Binding.ExtensionMethods
             }
         }
 
-        public static System.Object ElementAt(this IEnumerable items, int position)
+        public static object ElementAt(this IEnumerable items, int position)
         {
             if (items == null)
                 return null;

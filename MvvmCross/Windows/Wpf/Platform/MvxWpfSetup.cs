@@ -5,18 +5,19 @@
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System.Windows.Threading;
+using MvvmCross.Core.Platform;
+using MvvmCross.Core.ViewModels;
+using MvvmCross.Core.Views;
+using MvvmCross.Platform;
+using MvvmCross.Platform.Platform;
+using MvvmCross.Platform.Plugins;
+using MvvmCross.Wpf.Views;
+using MvvmCross.Wpf.Views.Presenters;
+using System.Windows.Controls;
+
 namespace MvvmCross.Wpf.Platform
 {
-    using System.Windows.Threading;
-
-    using MvvmCross.Core.Platform;
-    using MvvmCross.Core.ViewModels;
-    using MvvmCross.Core.Views;
-    using MvvmCross.Platform;
-    using MvvmCross.Platform.Platform;
-    using MvvmCross.Platform.Plugins;
-    using MvvmCross.Wpf.Views;
-
     public abstract class MvxWpfSetup
         : MvxSetup
     {
@@ -25,8 +26,14 @@ namespace MvvmCross.Wpf.Platform
 
         protected MvxWpfSetup(Dispatcher uiThreadDispatcher, IMvxWpfViewPresenter presenter)
         {
-            this._uiThreadDispatcher = uiThreadDispatcher;
-            this._presenter = presenter;
+            _uiThreadDispatcher = uiThreadDispatcher;
+            _presenter = presenter;
+        }
+
+        protected MvxWpfSetup(Dispatcher uiThreadDispatcher, ContentControl root)
+        {
+            _uiThreadDispatcher = uiThreadDispatcher;
+            _presenter = CreateViewPresenter(root);
         }
 
         protected override IMvxTrace CreateDebugTrace()
@@ -36,8 +43,8 @@ namespace MvvmCross.Wpf.Platform
 
         protected sealed override IMvxViewsContainer CreateViewsContainer()
         {
-            var toReturn = this.CreateWpfViewsContainer();
-            Mvx.RegisterSingleton<IMvxSimpleWpfViewLoader>(toReturn);
+            var toReturn = CreateWpfViewsContainer();
+            Mvx.RegisterSingleton<IMvxWpfViewLoader>(toReturn);
             return toReturn;
         }
 
@@ -46,9 +53,14 @@ namespace MvvmCross.Wpf.Platform
             return new MvxWpfViewsContainer();
         }
 
+        protected virtual IMvxWpfViewPresenter CreateViewPresenter(ContentControl root)
+        {
+            return new MvxWpfViewPresenter(root);
+        }
+
         protected override IMvxViewDispatcher CreateViewDispatcher()
         {
-            return new MvxWpfViewDispatcher(this._uiThreadDispatcher, this._presenter);
+            return new MvxWpfViewDispatcher(_uiThreadDispatcher, _presenter);
         }
 
         protected override IMvxPluginManager CreatePluginManager()

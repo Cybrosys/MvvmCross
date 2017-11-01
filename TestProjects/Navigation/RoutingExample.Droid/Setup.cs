@@ -1,17 +1,16 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
+using System.Reflection;
 using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
+using Android.Support.V4.App;
+using Android.Support.V7.App;
 using MvvmCross.Core.ViewModels;
 using MvvmCross.Droid.Platform;
+using MvvmCross.Droid.Views;
+using MvvmCross.Droid.Views.Attributes;
 using RoutingExample.Core;
+using System;
+using System.Threading.Tasks;
+using MvvmCross.Droid.Support.V7.AppCompat;
 
 namespace RoutingExample.Droid
 {
@@ -24,6 +23,11 @@ namespace RoutingExample.Droid
         protected override IMvxApplication CreateApp()
         {
             return new App();
+        }
+
+        protected override IMvxAndroidViewPresenter CreateViewPresenter()
+        {
+            return new MvxAppCompatViewPresenter(AndroidViewAssemblies);
         }
     }
 }

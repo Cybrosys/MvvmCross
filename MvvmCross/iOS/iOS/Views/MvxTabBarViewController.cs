@@ -1,78 +1,212 @@
-// MvxTabBarViewController.cs
-
-// MvvmCross is licensed using Microsoft Public License (Ms-PL)
-// Contributions and inspirations noted in readme.md and license.txt
-//
-// Project Lead - Stuart Lodge, @slodge, me@slodge.com
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using MvvmCross.Core.ViewModels;
+using MvvmCross.iOS.Views.Presenters;
+using MvvmCross.iOS.Views.Presenters.Attributes;
+using MvvmCross.Platform;
+using UIKit;
 
 namespace MvvmCross.iOS.Views
 {
-    using System;
-    using Foundation;
-    using MvvmCross.Binding.BindingContext;
-    using MvvmCross.Core.ViewModels;
-    using MvvmCross.Platform.iOS.Views;
-    using UIKit;
-
-    public class MvxTabBarViewController
-        : MvxEventSourceTabBarController
-          , IMvxIosView
+    public class MvxTabBarViewController : MvxBaseTabBarViewController, IMvxTabBarViewController
     {
-        protected MvxTabBarViewController()
+        private int _tabsCount = 0;
+
+        public MvxTabBarViewController() : base()
         {
-            this.AdaptForBinding();
+            // WORKAROUND: UIKit makes a first ViewDidLoad call, because a TabViewController expects it's view (tabs) to be drawn 
+            // on construction. Therefore we need to call ViewDidLoad "manually", otherwise ViewModel will be null
+            ViewDidLoad();
         }
 
-        protected MvxTabBarViewController(IntPtr handle)
-            : base(handle)
+        public MvxTabBarViewController(IntPtr handle) : base(handle)
         {
-            this.AdaptForBinding();
         }
 
-        public object DataContext
+        public override void ViewWillDisappear(bool animated)
         {
-            get
+            base.ViewWillDisappear(animated);
+
+            if (IsMovingFromParentViewController)
             {
-                // special code needed in TabBar because View is initialized during construction
-                return this.BindingContext?.DataContext;
+                if (Mvx.TryResolve(out IMvxIosViewPresenter iPresenter)
+                    && iPresenter is MvxIosViewPresenter mvxIosViewPresenter)
+                {
+                    mvxIosViewPresenter.CloseTabBarViewController();
+                };
             }
-            set { this.BindingContext.DataContext = value; }
         }
 
-        public IMvxViewModel ViewModel
+        public virtual void ShowTabView(UIViewController viewController, MvxTabPresentationAttribute attribute)
         {
-            get { return this.DataContext as IMvxViewModel; }
-            set { this.DataContext = value; }
+            if (!string.IsNullOrEmpty(attribute.TabAccessibilityIdentifier))
+                viewController.View.AccessibilityIdentifier = attribute.TabAccessibilityIdentifier;
+
+            // setup Tab
+            SetTitleAndTabBarItem(viewController, attribute);
+
+            // add Tab
+            var currentTabs = new List<UIViewController>();
+            if (ViewControllers != null)
+            {
+                currentTabs = ViewControllers.ToList();
+            }
+
+            currentTabs.Add(viewController);
+
+            // update current Tabs
+            ViewControllers = currentTabs.ToArray();
         }
 
-        public MvxViewModelRequest Request { get; set; }
-
-        public IMvxBindingContext BindingContext { get; set; }
-
-        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+        protected virtual void SetTitleAndTabBarItem(UIViewController viewController, MvxTabPresentationAttribute attribute)
         {
-            base.PrepareForSegue(segue, sender);
-            this.ViewModelRequestForSegue(segue, sender);
+            _tabsCount++;
+
+            viewController.Title = attribute.TabName;
+
+            if (!string.IsNullOrEmpty(attribute.TabIconName))
+                viewController.TabBarItem = new UITabBarItem(attribute.TabName, UIImage.FromBundle(attribute.TabIconName), _tabsCount);
+
+            if (!string.IsNullOrEmpty(attribute.TabSelectedIconName))
+                viewController.TabBarItem.SelectedImage = UIImage.FromBundle(attribute.TabSelectedIconName);
+        }
+
+        public virtual bool ShowChildView(UIViewController viewController)
+        {
+            var navigationController = SelectedViewController as UINavigationController;
+
+            // if the current selected ViewController is not a NavigationController, then a child cannot be shown
+            if (navigationController == null)
+            {
+                return false;
+            }
+
+            navigationController.PushViewController(viewController, true);
+
+            return true;
+        }
+
+        public virtual bool CanShowChildView()
+        {
+            return SelectedViewController is UINavigationController;
+        }
+
+        public virtual bool CloseChildViewModel(IMvxViewModel viewModel)
+        {
+            if (SelectedViewController is UINavigationController navController
+                && navController.ViewControllers != null
+                && navController.ViewControllers.Any())
+            {
+                // if the ViewModel to close if the last in the stack, close it animated
+                if (navController.TopViewController.GetIMvxIosView().ViewModel == viewModel)
+                {
+                    navController.PopViewController(true);
+                    return true;
+                }
+
+                var controllers = navController.ViewControllers.ToList();
+                var controllerToClose = controllers.FirstOrDefault(vc => vc.GetIMvxIosView().ViewModel == viewModel);
+
+                if (controllerToClose != null)
+                {
+                    controllers.Remove(controllerToClose);
+                    navController.ViewControllers = controllers.ToArray();
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public virtual bool CloseTabViewModel(IMvxViewModel viewModel)
+        {
+            if (ViewControllers == null || !ViewControllers.Any())
+                return false;
+
+            // loop through plain Tabs
+            var plainToClose = ViewControllers.Where(v => !(v is UINavigationController))
+                                              .Select(v => v.GetIMvxIosView())
+                                              .FirstOrDefault(mvxView => mvxView.ViewModel == viewModel);
+            if (plainToClose != null)
+            {
+                RemoveTabController((UIViewController)plainToClose);
+                return true;
+            }
+
+            // loop through nav stack Tabs
+            UIViewController toClose = null;
+            foreach (var vc in ViewControllers.Where(v => v is UINavigationController))
+            {
+                var root = ((UINavigationController)vc).ViewControllers.FirstOrDefault();
+                if (root != null && root.GetIMvxIosView().ViewModel == viewModel)
+                {
+                    toClose = root;
+                    break;
+                }
+            }
+            if (toClose != null)
+            {
+                RemoveTabController((UIViewController)toClose);
+                return true;
+            }
+
+            return false;
+        }
+
+        public void PresentViewControllerWithNavigation(UIViewController controller, bool animated = true, Action completionHandler = null)
+        {
+            PresentViewController(new UINavigationController(controller), animated, completionHandler);
+        }
+
+        protected virtual void RemoveTabController(UIViewController toClose)
+        {
+            var newTabs = ViewControllers.Where(v => v != toClose);
+            ViewControllers = newTabs.ToArray();
         }
     }
 
-    public class MvxTabBarViewController<TViewModel>
-        : MvxTabBarViewController
-          , IMvxIosView<TViewModel> where TViewModel : class, IMvxViewModel
+    public class MvxTabBarViewController<TViewModel> : MvxTabBarViewController
+        where TViewModel : IMvxViewModel
     {
-        protected MvxTabBarViewController()
-        {
-        }
-
-        protected MvxTabBarViewController(IntPtr handle)
-            : base(handle)
-        {
-        }
-
         public new TViewModel ViewModel
         {
             get { return (TViewModel)base.ViewModel; }
             set { base.ViewModel = value; }
+        }
+
+        public virtual UIViewController VisibleUIViewController
+        {
+            get
+            {
+                var topViewController = (SelectedViewController as UINavigationController)?.TopViewController ?? SelectedViewController;
+
+                if (topViewController.PresentedViewController != null)
+                {
+                    var presentedNavigationController = topViewController.PresentedViewController as UINavigationController;
+                    if (presentedNavigationController != null)
+                    {
+                        return presentedNavigationController.TopViewController;
+                    }
+                    else
+                    {
+                        return topViewController.PresentedViewController;
+                    }
+                }
+                else
+                {
+                    return topViewController;
+                }
+            }
+        }
+
+        public MvxTabBarViewController() : base()
+        {
+        }
+
+        public MvxTabBarViewController(IntPtr handle) : base(handle)
+        {
         }
     }
 }

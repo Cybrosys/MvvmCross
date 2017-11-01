@@ -1,24 +1,20 @@
-// MvxBindingFragmentAdapter.cs
+﻿// MvxBindingFragmentAdapter.cs
 // (c) Copyright Cirrious Ltd. http://www.cirrious.com
 // MvvmCross is licensed using Microsoft Public License (Ms-PL)
 // Contributions and inspirations noted in readme.md and license.txt
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
 using Android.OS;
 using Android.Support.V4.App;
+using MvvmCross.Core.ViewModels;
+using MvvmCross.Core.Views;
+using MvvmCross.Droid.Platform;
+using MvvmCross.Droid.Views;
 using MvvmCross.Platform;
 using MvvmCross.Platform.Core;
 using MvvmCross.Platform.Platform;
-using MvvmCross.Droid.Platform;
-using MvvmCross.Droid.Views;
-using MvvmCross.Core.ViewModels;
-using MvvmCross.Core.Views;
-using System;
-using MvvmCross.Droid.Shared.Fragments.EventSource;
-using MvvmCross.Droid.Shared.Fragments;
-using MvvmCross.Droid.Shared;
-using MvvmCross.Droid.Shared.Attributes;
 
 namespace MvvmCross.Droid.Support.V4.EventSource
 {
@@ -38,12 +34,26 @@ namespace MvvmCross.Droid.Support.V4.EventSource
         {
             FragmentView.EnsureSetupInitialized();
 
-			// Create is called after Fragment is attached to Activity
-			// it's safe to assume that Fragment has activity
-			if (!FragmentView.GetType().IsFragmentCacheable(Fragment.Activity.GetType()))
-				return;
+            // Create is called after Fragment is attached to Activity
+            // it's safe to assume that Fragment has activity
 
-			FragmentView.RegisterFragmentViewToCacheIfNeeded(Fragment.Activity.GetType());
+            var hostMvxView = Fragment.Activity as IMvxAndroidView;
+            if (hostMvxView == null)
+            {
+                MvxTrace.Warning($"Fragment host for fragment type {Fragment.GetType()} is not of type IMvxAndroidView");
+                return;
+            }
+
+            // if restoring state, Activity.ViewModel might be null, so a harder mechanism is necessary
+            var viewModelType = hostMvxView.ViewModel != null
+                                       ? hostMvxView.ViewModel.GetType()
+                                       : hostMvxView.FindAssociatedViewModelTypeOrNull();
+
+            if (viewModelType == null)
+            {
+                MvxTrace.Warning($"ViewModel type for Activity {Fragment.Activity.GetType()} not found when trying to show fragment: {Fragment.GetType()}");
+                return;
+            }
 
             Bundle bundle = null;
             MvxViewModelRequest request = null;
@@ -54,7 +64,7 @@ namespace MvvmCross.Droid.Support.V4.EventSource
             }
             else
             {
-                var fragment = FragmentView as Android.Support.V4.App.Fragment;
+                var fragment = FragmentView as Fragment;
                 if (fragment?.Arguments != null)
                 {
                     bundle = fragment.Arguments;
@@ -91,17 +101,15 @@ namespace MvvmCross.Droid.Support.V4.EventSource
         }
 
         protected override void HandleCreateViewCalled(object sender,
-                                               MvxValueEventArgs<MvxCreateViewParameters> args)
+            MvxValueEventArgs<MvxCreateViewParameters> args)
         {
             FragmentView.EnsureBindingContextIsSet(args.Value.Inflater);
         }
 
         protected override void HandleSaveInstanceStateCalled(object sender, MvxValueEventArgs<Bundle> bundleArgs)
         {
-			// it is guarannted that SaveInstanceState call will be executed before OnStop (thus before Fragment detach)
-			// it is safe to assume that Fragment has activity attached
-			if (!FragmentView.GetType().IsFragmentCacheable(Fragment.Activity.GetType()))
-                return;
+            // it is guarannted that SaveInstanceState call will be executed before OnStop (thus before Fragment detach)
+            // it is safe to assume that Fragment has activity attached
 
             var mvxBundle = FragmentView.CreateSaveStateBundle();
             if (mvxBundle != null)

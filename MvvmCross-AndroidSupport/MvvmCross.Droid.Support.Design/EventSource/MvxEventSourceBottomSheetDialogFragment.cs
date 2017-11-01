@@ -11,15 +11,13 @@ using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Views;
-using MvvmCross.Droid.Shared;
-using MvvmCross.Droid.Shared.Fragments.EventSource;
+using MvvmCross.Droid.Views;
 using MvvmCross.Platform.Core;
 
 namespace MvvmCross.Droid.Support.Design.EventSource
 {
 	public class MvxEventSourceBottomSheetDialogFragment
-		: BottomSheetDialogFragment
-		, IMvxEventSourceFragment
+		: BottomSheetDialogFragment, IMvxEventSourceFragment
 	{
 		public event EventHandler<MvxValueEventArgs<Context>> AttachCalled;
 
@@ -51,9 +49,10 @@ namespace MvvmCross.Droid.Support.Design.EventSource
 		{
 		}
 
-		protected MvxEventSourceBottomSheetDialogFragment(IntPtr javaReference, JniHandleOwnership transfer)
-			: base(javaReference, transfer)
-		{ }
+	    protected MvxEventSourceBottomSheetDialogFragment(IntPtr javaReference, JniHandleOwnership transfer)
+	        : base(javaReference, transfer)
+	    {
+	    }
 
 		public override void OnAttach(Context context)
 		{

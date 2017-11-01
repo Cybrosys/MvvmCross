@@ -1,12 +1,9 @@
-﻿
-using MvvmCross.Forms.Presenter.Core;
-using PageRendererExample.ViewModels;
+﻿using MvvmCross.Forms.Platform;
+using MvvmCross.Forms.Views;
 
-namespace PageRendererExample.Pages
+namespace PageRendererExample
 {
     public class CameraRendererContentPage : MvxContentPage<CameraRendererViewModel>
     {
-
     }
 }
-

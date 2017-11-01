@@ -1,17 +1,18 @@
-// MvxAppStart.cs
+﻿// MvxAppStart.cs
 
 // MvvmCross is licensed using Microsoft Public License (Ms-PL)
 // Contributions and inspirations noted in readme.md and license.txt
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+using MvvmCross.Platform.Platform;
+
 namespace MvvmCross.Core.ViewModels
 {
-    using MvvmCross.Platform.Platform;
-
+    [Obsolete("Please use MvxNavigationServiceAppStart instead")]
     public class MvxAppStart<TViewModel>
-        : MvxNavigatingObject
-          , IMvxAppStart
+        : MvxNavigatingObject, IMvxAppStart
         where TViewModel : IMvxViewModel
     {
         public void Start(object hint = null)
@@ -20,7 +21,7 @@ namespace MvvmCross.Core.ViewModels
             {
                 MvxTrace.Trace("Hint ignored in default MvxAppStart");
             }
-            this.ShowViewModel<TViewModel>();
+            ShowViewModel<TViewModel>();
         }
     }
 }

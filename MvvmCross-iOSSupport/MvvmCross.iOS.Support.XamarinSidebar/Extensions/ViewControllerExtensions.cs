@@ -1,20 +1,16 @@
-﻿using System;
-using UIKit;
+﻿using MvvmCross.iOS.Support.XamarinSidebar.Views;
 using SidebarNavigation;
+using UIKit;
 
 namespace MvvmCross.iOS.Support.XamarinSidebar.Extensions
 {
     public static class ViewControllerExtensions
     {
-        public static void ShowMenuButton(this UIViewController viewController, MvxSidebarPanelController sidebarPanelController)
+        public static void ShowMenuButton(this UIViewController viewController, MvxSidebarViewController sidebarPanelController, bool showLeft = true, bool showRight = true)
         {
             UIBarButtonItem barButtonItem;
 
-            // Make there are currently no left or right buttons
-            viewController.NavigationItem.SetLeftBarButtonItem(null, true);
-            viewController.NavigationItem.SetRightBarButtonItem(null, true);
-
-            if (sidebarPanelController.HasLeftMenu)
+            if (sidebarPanelController.HasLeftMenu && showLeft)
             {
                 var mvxSidebarMenu = sidebarPanelController.LeftSidebarController.MenuAreaController as IMvxSidebarMenu;
                 sidebarPanelController.LeftSidebarController.MenuLocation = MenuLocations.Left;
@@ -23,12 +19,11 @@ namespace MvvmCross.iOS.Support.XamarinSidebar.Extensions
                 viewController.NavigationItem.SetLeftBarButtonItem(barButtonItem, true);
             }
 
-            if (sidebarPanelController.HasRightMenu)
+            if (sidebarPanelController.HasRightMenu && showRight)
             {
                 var mvxSidebarMenu = sidebarPanelController.RightSidebarController.MenuAreaController as IMvxSidebarMenu;
                 sidebarPanelController.RightSidebarController.MenuLocation = MenuLocations.Right;
                 barButtonItem = CreateBarButtonItem(sidebarPanelController.RightSidebarController, mvxSidebarMenu);
-
 
                 viewController.NavigationItem.SetRightBarButtonItem(barButtonItem, true);
             }
@@ -44,6 +39,14 @@ namespace MvvmCross.iOS.Support.XamarinSidebar.Extensions
                     , UIBarButtonItemStyle.Plain
                     , (sender, args) =>
                     {
+                        if (sidebarController.IsOpen)
+                        {
+                            mvxSidebarMenu.MenuWillClose();
+                        }
+                        else
+                        {
+                            mvxSidebarMenu.MenuWillOpen();
+                        }
                         sidebarController.MenuWidth = mvxSidebarMenu.MenuWidth;
                         sidebarController.ViewWillAppear(false);
                         sidebarController.ToggleMenu();

@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MvvmCross.Core.Navigation;
 using MvvmCross.Core.ViewModels;
+using MvvmCross.Platform;
 using RoutingExample.Core.ViewModels;
 
 [assembly: MvxNavigation(typeof(TestBViewModel), @"mvx://test/\?id=(?<id>[A-Z0-9]{32})$")]
 namespace RoutingExample.Core.ViewModels
 {
     public class TestBViewModel
-        : MvxViewModel
+        : MvxViewModel<User, User>
     {
-
-        public TestBViewModel()
+        private readonly IMvxNavigationService _navigationService;
+        public TestBViewModel(IMvxNavigationService navigationService)
         {
-            
+            _navigationService = navigationService;
         }
 
         private string _id;
@@ -26,9 +23,25 @@ namespace RoutingExample.Core.ViewModels
             set { SetProperty(ref _id, value); }
         }
 
-        public void Init(string id)
+        public void Init()
         {
-            _id = id;
+            _user = new User($"Initial view {GetHashCode()}", "Test");
+        }
+
+        private User _user;
+
+        public IMvxAsyncCommand CloseViewModelCommand => new MvxAsyncCommand(
+            () => _navigationService.Close(this, new User("Return result", "Something")));
+        public IMvxAsyncCommand OpenViewModelMainCommand => new MvxAsyncCommand(
+            () => _navigationService.Navigate<MainViewModel>());
+        public IMvxAsyncCommand OpenViewModelACommand => new MvxAsyncCommand(
+            () =>  _navigationService.Navigate<TestAViewModel, User>(new User($"To A from {GetHashCode()}", "Something")));
+        public IMvxAsyncCommand OpenViewModelBCommand => new MvxAsyncCommand(
+            () =>  _navigationService.Navigate<TestBViewModel, User, User>(new User($"To B from {GetHashCode()}", "Something")));
+
+        public override void Prepare(User parameter)
+        {
+            _user = parameter;
         }
     }
 }

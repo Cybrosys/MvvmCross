@@ -5,38 +5,35 @@
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+using MvvmCross.Binding.BindingContext;
 using MvvmCross.Platform;
+using MvvmCross.Platform.Platform;
+using MvvmCross.Platform.tvOS.Views;
 
 namespace MvvmCross.tvOS.Views
 {
-    using System;
-
-    using MvvmCross.Binding.BindingContext;
-    using MvvmCross.Platform.Platform;
-    using MvvmCross.Platform.tvOS.Views;
-
     public class MvxBindingViewControllerAdapter : MvxBaseViewControllerAdapter
     {
-        protected IMvxTvosView TvosView => this.ViewController as IMvxTvosView;
+        protected IMvxTvosView TvosView => ViewController as IMvxTvosView;
 
         public MvxBindingViewControllerAdapter(IMvxEventSourceViewController eventSource)
             : base(eventSource)
         {
             if (!(eventSource is IMvxTvosView))
-                throw new ArgumentException("eventSource", "eventSource should be a IMvxTvosView");
+                throw new ArgumentException(nameof(eventSource), $"{nameof(eventSource)} should be a {nameof(IMvxTvosView)}");
 
-            this.TvosView.BindingContext = Mvx.Resolve<IMvxBindingContext>();
+            TvosView.BindingContext = Mvx.Resolve<IMvxBindingContext>();
         }
 
         public override void HandleDisposeCalled(object sender, EventArgs e)
         {
-            if (this.TvosView == null)
+            if (TvosView == null)
             {
-                MvxTrace.Warning("iosView is null for clearup of bindings in type {0}",
-                               this.TvosView?.GetType().Name);
+                MvxTrace.Warning($"{nameof(TvosView)} is null for clearup of bindings");
                 return;
             }
-            this.TvosView.ClearAllBindings();
+            TvosView.ClearAllBindings();
             base.HandleDisposeCalled(sender, e);
         }
     }

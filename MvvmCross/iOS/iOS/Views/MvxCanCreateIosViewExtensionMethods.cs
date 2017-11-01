@@ -5,14 +5,14 @@
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+using System.Collections.Generic;
+using MvvmCross.Core.Platform;
+using MvvmCross.Core.ViewModels;
+using MvvmCross.Platform;
+
 namespace MvvmCross.iOS.Views
 {
-    using System.Collections.Generic;
-
-    using MvvmCross.Core.Platform;
-    using MvvmCross.Core.ViewModels;
-    using MvvmCross.Platform;
-
     public static class MvxCanCreateIosViewExtensionMethods
     {
         public static IMvxIosView CreateViewControllerFor<TTargetViewModel>(this IMvxCanCreateIosView view,
@@ -31,8 +31,7 @@ namespace MvvmCross.iOS.Views
             where TTargetViewModel : class, IMvxViewModel
         {
             var parameterBundle = new MvxBundle(parameterValues);
-            var request = new MvxViewModelRequest<TTargetViewModel>(parameterBundle, null,
-                                                                    MvxRequestedBy.UserAction);
+            var request = new MvxViewModelRequest<TTargetViewModel>(parameterBundle, null);
             return view.CreateViewControllerFor(request);
         }
 
@@ -49,6 +48,13 @@ namespace MvvmCross.iOS.Views
             MvxViewModelRequest request)
         {
             return Mvx.Resolve<IMvxIosViewCreator>().CreateView(request);
+        }
+
+        public static IMvxIosView CreateViewControllerFor(
+            this IMvxCanCreateIosView view, Type viewType,
+            MvxViewModelRequest request)
+        {
+            return Mvx.Resolve<IMvxIosViewCreator>().CreateViewOfType(viewType, request);
         }
 
         public static IMvxIosView CreateViewControllerFor(

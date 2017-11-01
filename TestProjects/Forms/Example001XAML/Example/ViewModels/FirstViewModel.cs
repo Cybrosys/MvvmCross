@@ -1,23 +1,29 @@
+﻿using System.Windows.Input;
 using MvvmCross.Core.ViewModels;
-using System.Windows.Input;
 
 namespace Example.ViewModels
 {
-    public class FirstViewModel 
-		: MvxViewModel
+    public class FirstViewModel
+        : MvxViewModel
     {
-		private string _yourNickname = string.Empty;
+        private string _yourNickname = string.Empty;
         public string YourNickname
-		{ 
-			get { return _yourNickname; }
-			set { _yourNickname = value; RaisePropertyChanged(() => YourNickname); RaisePropertyChanged(() => Hello); }
-		}
+        {
+            get
+            {
+                return _yourNickname;
+            }
+            set
+            {
+                SetProperty(ref _yourNickname, value);
+                RaisePropertyChanged(() => Hello);
+            }
+        }
 
         public string Hello
         {
             get { return "Hello " + YourNickname; }
         }
-
 
         public ICommand ShowAboutPageCommand
         {

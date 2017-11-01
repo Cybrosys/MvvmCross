@@ -7,7 +7,6 @@ using Android.Views;
 using Android.Views.InputMethods;
 using Example.Core.ViewModels;
 using MvvmCross.Droid.Support.V7.AppCompat;
-using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 
 namespace Example.Droid.Activities
 {
@@ -17,7 +16,7 @@ namespace Example.Droid.Activities
         LaunchMode = LaunchMode.SingleTop,
 		Name = "example.droid.activities.SecondHostActivity"
         )]
-	public class SecondHostActivity : MvxCachingFragmentCompatActivity<SecondHostViewModel>, INavigationActivity
+	public class SecondHostActivity : MvxAppCompatActivity<SecondHostViewModel>, INavigationActivity
     {
 		public DrawerLayout DrawerLayout { get; set; }
 

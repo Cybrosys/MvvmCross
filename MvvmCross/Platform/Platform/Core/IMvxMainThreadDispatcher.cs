@@ -5,12 +5,12 @@
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+
 namespace MvvmCross.Platform.Core
 {
-    using System;
-
     public interface IMvxMainThreadDispatcher
     {
-        bool RequestMainThreadAction(Action action);
+        bool RequestMainThreadAction(Action action, bool maskExceptions = true);
     }
 }

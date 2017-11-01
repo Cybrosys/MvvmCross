@@ -2,11 +2,11 @@
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
-using MvvmCross.Binding.Droid.BindingContext;
-using MvvmCross.Droid.Support.V7.AppCompat;
-using MvvmCross.Droid.Support.V4;
-using MvvmCross.Core.ViewModels;
 using Example.Droid.Activities;
+using MvvmCross.Binding.Droid.BindingContext;
+using MvvmCross.Core.ViewModels;
+using MvvmCross.Droid.Support.V4;
+using MvvmCross.Droid.Support.V7.AppCompat;
 
 namespace Example.Droid.Fragments
 {
@@ -15,15 +15,15 @@ namespace Example.Droid.Fragments
         private Toolbar _toolbar;
         private MvxActionBarDrawerToggle _drawerToggle;
 
-		public MvxCachingFragmentCompatActivity ParentActivity { 
+		public MvxAppCompatActivity ParentActivity { 
 			get {
-				return ((MvxCachingFragmentCompatActivity)Activity);
+				return (MvxAppCompatActivity)Activity;
 			}
 		}
 
         protected BaseFragment()
         {
-            this.RetainInstance = true;
+            RetainInstance = true;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -45,7 +45,7 @@ namespace Example.Droid.Fragments
 					Resource.String.drawer_open,            // "open drawer" description
 					Resource.String.drawer_close            // "close drawer" description
 				);
-				_drawerToggle.DrawerOpened += (object sender, ActionBarDrawerEventArgs e) => ((MainActivity)Activity).HideSoftKeyboard ();
+				_drawerToggle.DrawerOpened += (object sender, ActionBarDrawerEventArgs e) => (Activity as MainActivity)?.HideSoftKeyboard();
 				(ParentActivity as INavigationActivity).DrawerLayout.AddDrawerListener(_drawerToggle);
 			}
 
@@ -78,4 +78,3 @@ namespace Example.Droid.Fragments
         }
     }
 }
-

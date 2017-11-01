@@ -36,6 +36,9 @@
     <Reference Include="System.Windows" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Parse\StringDictionary\IMvxStringDictionaryParser.cs" />
     <Compile Include="Parse\StringDictionary\IMvxStringDictionaryWriter.cs" />
     <Compile Include="Parse\StringDictionary\MvxViewModelRequestCustomTextSerializer.cs" />
@@ -54,7 +57,6 @@
     <Compile Include="Platform\IMvxSettings.cs" />
     <Compile Include="ViewModels\IMvxTypeFinder.cs" />
     <Compile Include="ViewModels\IMvxViewModelByNameRegistry.cs" />
-    <Compile Include="ViewModels\IMvxViewModelInitializer.cs" />
     <Compile Include="ViewModels\IMvxViewModelTypeFinder.cs" />
     <Compile Include="ViewModels\IMvxTypeToTypeLookupBuilder.cs" />
     <Compile Include="ViewModels\IMvxViewModelByNameLookup.cs" />
@@ -67,7 +69,9 @@
     <Compile Include="MvxSingletonCache.cs" />
     <Compile Include="ViewModels\MvxInpcInterceptionResult.cs" />
     <Compile Include="Platform\MvxSettings.cs" />
+    <Compile Include="ViewModels\MvxViewModelInstanceRequest.cs" />
     <Compile Include="ViewModels\MvxViewToViewModelNameMapping.cs" />
+    <Compile Include="Views\IMvxChildViewModelCache.cs" />
     <Compile Include="Views\IMvxViewPresenter.cs" />
     <Compile Include="ViewModels\MvxClosePresentationHint.cs" />
     <Compile Include="ViewModels\MvxCommandAttribute.cs" />
@@ -91,6 +95,7 @@
     <Compile Include="ViewModels\MvxBundle.cs" />
     <Compile Include="Platform\MvxSimplePropertyDictionaryExtensionMethods.cs" />
     <Compile Include="ViewModels\MvxViewModelExtensions.cs" />
+    <Compile Include="Views\MvxChildViewModelCache.cs" />
     <Compile Include="Views\MvxViewExtensionMethods.cs" />
     <Compile Include="ViewModels\IMvxApplication.cs" />
     <Compile Include="Platform\IMvxLifetime.cs" />
@@ -100,15 +105,12 @@
     <Compile Include="ViewModels\IMvxViewModel.cs" />
     <Compile Include="ViewModels\IMvxViewModelLoader.cs" />
     <Compile Include="ViewModels\IMvxViewModelLocator.cs" />
-    <Compile Include="ViewModels\MvxRequestedBy.cs" />
-    <Compile Include="ViewModels\MvxRequestedByType.cs" />
     <Compile Include="Views\IMvxView.cs" />
     <Compile Include="Views\IMvxViewDispatcher.cs" />
     <Compile Include="Views\IMvxViewFinder.cs" />
     <Compile Include="Views\IMvxViewsContainer.cs" />
     <Compile Include="Platform\MvxLifetimeMonitor.cs" />
     <Compile Include="Platform\MvxSetup.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\MvxNavigatingObject.cs" />
     <Compile Include="ViewModels\MvxNotifyPropertyChanged.cs" />
     <Compile Include="ViewModels\MvxNullViewModel.cs" />
@@ -125,6 +127,29 @@
     <Compile Include="Navigation\IMvxNavigationService.cs" />
     <Compile Include="Navigation\MvxNavigationAttribute.cs" />
     <Compile Include="Navigation\MvxNavigationService.cs" />
+    <Compile Include="Navigation\MvxNavigationExtensions.cs" />
+    <Compile Include="Navigation\EventArguments\NavigateEventArgs.cs" />
+    <Compile Include="Navigation\IMvxNavigationCache.cs" />
+    <Compile Include="Navigation\MvxNavigationCache.cs" />
+    <Compile Include="Annotations\JetbrainsAnnotations.cs" />
+    <Compile Include="ViewModels\MvxNavigationServiceAppStart.cs" />
+    <Compile Include="Views\MvxBasePresentationAttribute.cs" />
+    <Compile Include="Views\IMvxOverridePresentationAttribute.cs" />
+    <Compile Include="Views\MvxPresentationAttributeExtensions.cs" />
+    <Compile Include="Views\IMvxAttributeViewPresenter.cs" />
+    <Compile Include="Views\MvxPresentationAttributeAction.cs" />
+    <Compile Include="Platform\LogProviders\DisposableAction.cs" />
+    <Compile Include="Platform\LogProviders\EntLibLogProvider.cs" />
+    <Compile Include="Platform\LogProviders\Log4NetLogProvider.cs" />
+    <Compile Include="Platform\LogProviders\LogMessageFormatter.cs" />
+    <Compile Include="Platform\LogProviders\LoupeLogProvider.cs" />
+    <Compile Include="Platform\LogProviders\MvxBaseLogProvider.cs" />
+    <Compile Include="Platform\LogProviders\NLogLogProvider.cs" />
+    <Compile Include="Platform\LogProviders\SerilogLogProvider.cs" />
+    <Compile Include="Platform\LogProviders\TraceEventTypeValues.cs" />
+    <Compile Include="Platform\LogProviders\TypeExtensions.cs" />
+    <Compile Include="Platform\LogProviders\MvxLog.cs" />
+    <Compile Include="Platform\LogProviders\ConsoleLogProvider.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
@@ -141,7 +166,9 @@
       <Name>MvvmCross.Platform</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Navigation\" />
+    <Folder Include="Annotations\" />
+    <Folder Include="Platform\LogProviders\" />
   </ItemGroup>
 </Project>

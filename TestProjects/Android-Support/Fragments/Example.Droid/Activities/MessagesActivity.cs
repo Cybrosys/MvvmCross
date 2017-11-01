@@ -2,7 +2,6 @@ using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Example.Core.ViewModels;
-using Example.Droid.Activities.Caching;
 using MvvmCross.Droid.Support.V7.AppCompat;
 
 namespace Example.Droid.Activities
@@ -13,7 +12,7 @@ namespace Example.Droid.Activities
        LaunchMode = LaunchMode.SingleTop,
        Name = "example.droid.activities.AnotherFragmentHostActivity"
        )]
-    public class MessagesActivity : MvxCachingFragmentCompatActivity<MessagesViewModel>
+    public class MessagesActivity : MvxAppCompatActivity<MessagesViewModel>
     {
         /*public override IFragmentCacheConfiguration BuildFragmentCacheConfiguration()
         {

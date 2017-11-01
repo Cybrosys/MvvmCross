@@ -1,27 +1,29 @@
 ﻿using Android.App;
-using Android.Widget;
 using Android.OS;
+using Android.Widget;
+using Eventhooks.Core.ViewModels;
+using MvvmCross.Droid.Views;
+using MvvmCross.Binding.BindingContext;
 
-namespace Eventhooks.Core.Droid
+namespace Eventhooks.Droid
 {
-	[Activity(Label = "Eventhooks", MainLauncher = true, Icon = "@mipmap/icon")]
-	public class MainActivity : Activity
-	{
-		int count = 1;
+    [Activity(Label = "Eventhooks", MainLauncher = true, Icon = "@mipmap/icon")]
+    public class MainActivity : MvxActivity<FirstViewModel>
+    {
+        protected override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
 
-		protected override void OnCreate(Bundle savedInstanceState)
-		{
-			base.OnCreate(savedInstanceState);
+            // Set our view from the "main" layout resource
+            SetContentView(Resource.Layout.Main);
 
-			// Set our view from the "main" layout resource
-			SetContentView(Resource.Layout.Main);
+            // Get our button from the layout resource,
+            // and attach an event to it
+            Button button = FindViewById<Button>(Resource.Id.myButton);
 
-			// Get our button from the layout resource,
-			// and attach an event to it
-			Button button = FindViewById<Button>(Resource.Id.myButton);
-
-			button.Click += delegate { button.Text = string.Format("{0} clicks!", count++); };
-		}
-	}
+            var bindingSet = this.CreateBindingSet<MainActivity, FirstViewModel>();
+            bindingSet.Bind(button).To(vm => vm.ShowSecondView);
+            bindingSet.Apply();
+        }
+    }
 }
-

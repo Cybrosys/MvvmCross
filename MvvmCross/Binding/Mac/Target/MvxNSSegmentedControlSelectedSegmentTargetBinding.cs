@@ -1,15 +1,11 @@
-﻿namespace MvvmCross.Binding.Mac.Target
+﻿using System;
+using System.Reflection;
+using AppKit;
+using MvvmCross.Binding.Bindings.Target;
+using MvvmCross.Platform.Platform;
+
+namespace MvvmCross.Binding.Mac.Target
 {
-    using System.Reflection;
-
-    using AppKit;
-    using Foundation;
-    using ObjCRuntime;
-
-    using global::MvvmCross.Platform.Platform;
-
-    using MvvmCross.Binding.Bindings.Target;
-
     public class MvxNSSegmentedControlSelectedSegmentTargetBinding : MvxPropertyInfoTargetBinding<NSSegmentedControl>
     {
         private bool _subscribed;
@@ -19,7 +15,7 @@
         {
         }
 
-        private void HandleValueChanged(object sender, System.EventArgs e)
+        private void HandleValueChanged(object sender, EventArgs e)
         {
             var view = View;
             if (view == null)
@@ -41,7 +37,7 @@
                 return;
             }
 
-            this._subscribed = true;
+            _subscribed = true;
             segmentedControl.Activated += HandleValueChanged;
         }
 
@@ -50,8 +46,8 @@
             var view = target as NSSegmentedControl;
             if (view == null)
                 return;
-
-            view.SelectedSegment = (int)value;
+            
+            view.SelectSegment((int)value);
         }
 
         protected override void Dispose(bool isDisposing)
@@ -60,10 +56,10 @@
             if (isDisposing)
             {
                 var view = View;
-                if (view != null && this._subscribed)
+                if (view != null && _subscribed)
                 {
                     view.Activated -= HandleValueChanged;
-                    this._subscribed = false;
+                    _subscribed = false;
                 }
             }
         }

@@ -16,17 +16,7 @@ namespace MvvmCross.iOS.Views
 		/// </summary>
 		public MvxUIRefreshControl()
 		{
-			this.ValueChanged += (object sender, EventArgs e) =>
-			{
-				var command = RefreshCommand;
-				if (command == null)
-					return;
-
-				if (!command.CanExecute(null))
-					return;
-
-				command.Execute(null);
-			};
+			ValueChanged += OnValueChanged;
 		}
 
 		private string _message;
@@ -37,11 +27,14 @@ namespace MvvmCross.iOS.Views
 		/// <value>The message.</value>
 		public string Message
 		{
-			get { return _message; }
+            get
+            {
+                return _message;
+            }
 			set
 			{
 				_message = value ?? string.Empty;
-				this.AttributedTitle = new NSAttributedString(_message);
+				AttributedTitle = new NSAttributedString(_message);
 			}
 		}
 
@@ -53,7 +46,10 @@ namespace MvvmCross.iOS.Views
 		/// <value><c>true</c> if this instance is refreshing; otherwise, <c>false</c>.</value>
 		public bool IsRefreshing
 		{
-			get { return _isRefreshing; }
+			get
+            {
+                return _isRefreshing;
+            }
 			set
 			{
 				_isRefreshing = value;
@@ -69,5 +65,31 @@ namespace MvvmCross.iOS.Views
 		/// </summary>
 		/// <value>The refresh command.</value>
 		public ICommand RefreshCommand { get; set; }
+
+		private void OnValueChanged(object sender, EventArgs args)
+		{
+			ExecuteRefreshCommand(RefreshCommand);
+		}
+
+		protected virtual void ExecuteRefreshCommand(ICommand command)
+        {
+            if (command == null)
+                return;
+
+            if (!command.CanExecute(null))
+                return;
+
+            command.Execute(null);
+        }
+
+		protected override void Dispose(bool disposing)
+		{
+			if(disposing)
+			{
+				ValueChanged -= OnValueChanged;
+			}
+
+			base.Dispose(disposing);
+		}
 	}
 }

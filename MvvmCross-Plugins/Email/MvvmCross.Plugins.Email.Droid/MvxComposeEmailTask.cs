@@ -1,20 +1,22 @@
-// MvxComposeEmailTask.cs
+﻿// MvxComposeEmailTask.cs
 // (c) Copyright Cirrious Ltd. http://www.cirrious.com
 // MvvmCross is licensed using Microsoft Public License (Ms-PL)
 // Contributions and inspirations noted in readme.md and license.txt
 // 
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Android.Content;
 using Android.Net;
 using Android.OS;
 using Android.Text;
-using MvvmCross.Platform.Droid.Platform;
-using System.Collections.Generic;
-using System.Linq;
 using Java.IO;
-using System.IO;
+using Java.Lang;
+using MvvmCross.Platform.Droid.Platform;
 using MvvmCross.Platform.Droid.Views;
+using File = Java.IO.File;
 
 namespace MvvmCross.Plugins.Email.Droid
 {
@@ -23,11 +25,11 @@ namespace MvvmCross.Plugins.Email.Droid
         : MvxAndroidTask
         , IMvxComposeEmailTaskEx
     {
-        private List<Java.IO.File> filesToDelete;
+        private List<File> filesToDelete;
 
         public void ComposeEmail(string to, string cc = null, string subject = null, string body = null, bool isHtml = false, string dialogTitle = null)
         {
-            var toArray = to == null ? null: new[] { to };
+            var toArray = to == null ? null : new[] { to };
             var ccArray = cc == null ? null : new[] { cc };
             ComposeEmail(
                 toArray,
@@ -62,7 +64,16 @@ namespace MvvmCross.Plugins.Email.Droid
             if (isHtml)
             {
                 emailIntent.SetType("text/html");
-                emailIntent.PutExtra(Intent.ExtraText, Html.FromHtml(body));
+
+                ICharSequence htmlBody;
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
+                    htmlBody = Html.FromHtml(body, FromHtmlOptions.ModeLegacy);
+                else
+#pragma warning disable CS0618 // Type or member is obsolete
+                    htmlBody = Html.FromHtml(body);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+                emailIntent.PutExtra(Intent.ExtraText, htmlBody);
             }
             else
             {
@@ -75,7 +86,7 @@ namespace MvvmCross.Plugins.Email.Droid
                 var uris = new List<IParcelable>();
 
                 DoOnActivity(activity => {
-                    filesToDelete = new List<Java.IO.File>();
+                    filesToDelete = new List<File>();
 
                     foreach (var file in attachments)
                     {
@@ -86,7 +97,7 @@ namespace MvvmCross.Plugins.Email.Droid
                             var extension = Path.GetExtension(file.FileName);
 
                             // save file in external cache (required so Gmail app can independently access it, otherwise Gmail won't take the attachment)
-                            var newFile = new Java.IO.File(activity.ExternalCacheDir, fileName + extension);
+                            var newFile = new File(activity.ExternalCacheDir, fileName + extension);
 
                             file.Content.CopyTo(memoryStream);
                             var bytes = memoryStream.ToArray();
@@ -123,8 +134,11 @@ namespace MvvmCross.Plugins.Email.Droid
         {
             base.ProcessMvxIntentResult(result);
 
+            if (filesToDelete == null || filesToDelete.Count == 0)
+                return;
+
             // on return, delete all attachments from external cache
-            foreach (Java.IO.File file in filesToDelete)
+            foreach (File file in filesToDelete)
             {
                 if (file.Exists())
                 {

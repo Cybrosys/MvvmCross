@@ -1,19 +1,21 @@
-// MvxFragmentActivity.cs
+﻿// MvxFragmentActivity.cs
 // (c) Copyright Cirrious Ltd. http://www.cirrious.com
 // MvvmCross is licensed using Microsoft Public License (Ms-PL)
 // Contributions and inspirations noted in readme.md and license.txt
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
 using Android.Content;
+using Android.OS;
 using Android.Runtime;
+using Android.Views;
 using MvvmCross.Binding.BindingContext;
 using MvvmCross.Binding.Droid.BindingContext;
 using MvvmCross.Binding.Droid.Views;
-using MvvmCross.Droid.Views;
 using MvvmCross.Core.ViewModels;
-using System;
 using MvvmCross.Droid.Support.V4.EventSource;
+using MvvmCross.Droid.Views;
 
 namespace MvvmCross.Droid.Support.V4
 {
@@ -21,6 +23,8 @@ namespace MvvmCross.Droid.Support.V4
     public class MvxFragmentActivity
         : MvxEventSourceFragmentActivity, IMvxAndroidView
     {
+        protected View _view;
+
         protected MvxFragmentActivity()
         {
             BindingContext = new MvxAndroidBindingContext(this, this);
@@ -29,7 +33,8 @@ namespace MvvmCross.Droid.Support.V4
 
         protected MvxFragmentActivity(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
-        {}
+        {
+        }
 
         public object DataContext
         {
@@ -39,7 +44,10 @@ namespace MvvmCross.Droid.Support.V4
 
         public IMvxViewModel ViewModel
         {
-            get { return DataContext as IMvxViewModel; }
+            get
+            {
+                return DataContext as IMvxViewModel;
+            }
             set
             {
                 DataContext = value;
@@ -49,7 +57,7 @@ namespace MvvmCross.Droid.Support.V4
 
         public void MvxInternalStartActivityForResult(Intent intent, int requestCode)
         {
-            base.StartActivityForResult(intent, requestCode);
+            StartActivityForResult(intent, requestCode);
         }
 
         protected virtual void OnViewModelSet()
@@ -60,18 +68,9 @@ namespace MvvmCross.Droid.Support.V4
 
         public override void SetContentView(int layoutResId)
         {
-            var view = this.BindingInflate(layoutResId, null);
+            _view = this.BindingInflate(layoutResId, null);
 
-            EventHandler onGlobalLayout = null;
-            onGlobalLayout = (sender, args) =>
-            {
-                view.ViewTreeObserver.GlobalLayout -= onGlobalLayout;
-                ViewModel.Appeared();
-            };
-
-            view.ViewTreeObserver.GlobalLayout += onGlobalLayout;
-
-            SetContentView(view);
+            SetContentView(_view);
         }
 
         protected override void AttachBaseContext(Context @base)
@@ -79,23 +78,46 @@ namespace MvvmCross.Droid.Support.V4
             base.AttachBaseContext(MvxContextWrapper.Wrap(@base, this));
         }
 
-        public override void OnAttachedToWindow()
+        protected override void OnCreate(Bundle bundle)
         {
-            base.OnAttachedToWindow();
-            ViewModel.Appearing();
+            base.OnCreate(bundle);
+            ViewModel?.ViewCreated();
         }
 
-        public override void OnDetachedFromWindow()
-        {
-            base.OnDetachedFromWindow();
-            ViewModel.Disappearing(); // we don't have anywhere to get this info
-            ViewModel.Disappeared();
-        }
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			ViewModel?.ViewDestroy();
+		}
+
+		protected override void OnStart()
+		{
+			base.OnStart();
+			ViewModel?.ViewAppearing();
+		}
+
+		protected override void OnResume()
+		{
+			base.OnResume();
+			ViewModel?.ViewAppeared();
+		}
+
+		protected override void OnPause()
+		{
+			base.OnPause();
+			ViewModel?.ViewDisappearing();
+		}
+
+		protected override void OnStop()
+		{
+			base.OnStop();
+			ViewModel?.ViewDisappeared();
+		}
     }
 
     public abstract class MvxFragmentActivity<TViewModel>
-        : MvxFragmentActivity
-    , IMvxAndroidView<TViewModel> where TViewModel : class, IMvxViewModel
+        : MvxFragmentActivity, IMvxAndroidView<TViewModel>
+        where TViewModel : class, IMvxViewModel
     {
         public new TViewModel ViewModel
         {

@@ -13,17 +13,16 @@ public class AutoFitTextureView : TextureView
         public AutoFitTextureView(Context context)
             : this(context, null)
         {
-
         }
+
         public AutoFitTextureView(Context context, IAttributeSet attrs)
             : this(context, attrs, 0)
         {
-
         }
+
         public AutoFitTextureView(Context context, IAttributeSet attrs, int defStyle)
             : base(context, attrs, defStyle)
         {
-
         }
 
         public void SetAspectRatio(int width, int height)
@@ -42,14 +41,18 @@ public class AutoFitTextureView : TextureView
             int height = MeasureSpec.GetSize(heightMeasureSpec);
             if (0 == mRatioWidth || 0 == mRatioHeight) {
                 SetMeasuredDimension(width, height);
-            } else {
-                if (width < (float)height * mRatioWidth / (float)mRatioHeight) {
+            }
+            else
+            {
+                if (width < (float)height * mRatioWidth / (float)mRatioHeight)
+                {
                     SetMeasuredDimension(width, width * mRatioHeight / mRatioWidth);
-                } else {
+                }
+                else
+                {
                     SetMeasuredDimension(height * mRatioWidth / mRatioHeight, height);
                 }
             }
         }
     }
 }
-

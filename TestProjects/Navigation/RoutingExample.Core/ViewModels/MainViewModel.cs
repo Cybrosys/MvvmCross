@@ -1,60 +1,95 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Threading.Tasks;
 using MvvmCross.Core.Navigation;
 using MvvmCross.Core.ViewModels;
-using RoutingExample.Core.ViewModels;
 
 namespace RoutingExample.Core.ViewModels
 {
-
-    public class MainViewModel : MvxViewModel
+    public class MainViewModel : MvxViewModelResult<User>
     {
-        private readonly IMvxNavigationService _routingService;
+        private readonly IMvxNavigationService _navigationService;
 
-        public MainViewModel(IMvxNavigationService routingService)
+        public MainViewModel(IMvxNavigationService navigationService)
         {
-            _routingService = routingService;
+            _navigationService = navigationService;
         }
 
-        private ICommand _showACommand;
+        public override void Start()
+        {
+            base.Start();
+        }
 
-        public ICommand ShowACommand
+        public override async Task Initialize()
+        {
+            //await _navigationService.Navigate<ViewModelA>();
+        }
+
+        private IMvxCommand _showACommand;
+
+        public IMvxCommand ShowACommand
         {
             get
             {
                 return _showACommand ?? (_showACommand = new MvxAsyncCommand(async () =>
                 {
-                    await _routingService.RouteAsync("mvx://test/a");
+                    await _navigationService.Navigate<ViewModelA, string, string>("test");
+                    //await _navigationService.Navigate<TestAViewModel, User>(new User("MvvmCross", "Test"));
+
+                    //await _navigationService.Navigate("mvx://test/a");
                 }));
             }
         }
 
-        private ICommand _showBCommand;
+        private IMvxCommand _showBCommand;
 
-        public ICommand ShowBCommand
+        public IMvxCommand ShowBCommand
         {
             get
             {
                 return _showBCommand ?? (_showBCommand = new MvxAsyncCommand(async () =>
                 {
-                    await _routingService.RouteAsync("mvx://test/?id=" + Guid.NewGuid().ToString("N"));
+                    //var result = await _navigationService.Navigate<User, User>("mvx://test/?id=" + Guid.NewGuid().ToString("N"), new User("MvvmCross2", "Test2"));
+                    var result = await _navigationService.Navigate<TestBViewModel, User, User>(new User("MvvmCross", "Test"));
+                    var test = result?.FirstName;
+                    //await _navigationService.Close(this, new User("Close parent", "Test"));
                 }));
             }
         }
 
-        private ICommand _showRandomCommand;
+        private IMvxCommand _showDialogACommand;
 
-        public ICommand ShowRandomCommand
+        public IMvxCommand ShowDialogACommand
+        {
+            get
+            {
+                return _showDialogACommand ?? (_showDialogACommand = new MvxAsyncCommand(async () =>
+                {
+                    var result = await _navigationService.Navigate<ViewModelDialogA, IMvxViewModel, string>(this);
+                }));
+            }
+        }
+
+        private IMvxCommand _showRandomCommand;
+
+        public IMvxCommand ShowRandomCommand
         {
             get
             {
                 return _showRandomCommand ?? (_showRandomCommand = new MvxAsyncCommand(async () =>
                 {
-                    await _routingService.RouteAsync("mvx://random");
+                    await _navigationService.Navigate("mvx://random");
+                }));
+            }
+        }
+
+        private IMvxCommand _showPrePopCommand;
+
+        public IMvxCommand ShowPrePopCommand
+        {
+            get
+            {
+                return _showPrePopCommand ?? (_showPrePopCommand = new MvxAsyncCommand(async () =>
+                {
+                    await _navigationService.Navigate("mvx://prepop");
                 }));
             }
         }

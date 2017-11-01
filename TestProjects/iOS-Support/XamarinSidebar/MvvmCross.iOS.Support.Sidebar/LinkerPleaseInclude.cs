@@ -1,20 +1,26 @@
-// ReSharper disable RedundantToStringCall
-// ReSharper disable UnusedVariable
-// ReSharper disable UnusedParameter.Global
-// ReSharper disable RedundantAssignment
+﻿using System.Collections.Specialized;
+using System.Windows.Input;
+using Foundation;
+using MvvmCross.Binding.BindingContext;
+using MvvmCross.iOS.Views;
+using UIKit;
+using MvvmCross.Core.Navigation;
+using MvvmCross.Core.ViewModels;
+
 namespace MvvmCross.iOS.Support.XamarinSidebarSample.iOS
 {
-    using System.Collections.Specialized;
-    using System.Windows.Input;
-    using MvvmCross.iOS.Views;
-    using Foundation;
-    using UIKit;
-
     // This class is never actually executed, but when Xamarin linking is enabled it does ensure types and properties
     // are preserved in the deployed app
-    [Preserve(AllMembers = true)]
+    [Foundation.Preserve(AllMembers = true)]
     public class LinkerPleaseInclude
     {
+        public void Include(MvxTaskBasedBindingContext c)
+        {
+            c.Dispose();
+            var c2 = new MvxTaskBasedBindingContext();
+            c2.Dispose();
+        }
+
         public void Include(UIButton uiButton)
         {
             uiButton.TouchUpInside += (s, e) =>
@@ -108,6 +114,11 @@ namespace MvvmCross.iOS.Support.XamarinSidebarSample.iOS
         public void Include(System.ComponentModel.INotifyPropertyChanged changed)
         {
             changed.PropertyChanged += (sender, e) => { var test = e.PropertyName; };
+        }
+
+        public void Include(MvxNavigationService service, IMvxViewModelLoader loader)
+        {
+            service = new MvxNavigationService(null, loader);
         }
     }
 }

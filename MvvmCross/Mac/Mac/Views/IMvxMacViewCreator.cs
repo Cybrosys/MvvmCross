@@ -5,14 +5,17 @@
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+using MvvmCross.Core.ViewModels;
+
 namespace MvvmCross.Mac.Views
 {
-    using global::MvvmCross.Core.ViewModels;
-
     public interface IMvxMacViewCreator
     {
         IMvxMacView CreateView(MvxViewModelRequest request);
 
         IMvxMacView CreateView(IMvxViewModel viewModel);
+
+        IMvxMacView CreateViewOfType(Type viewType, MvxViewModelRequest request);
     }
 }

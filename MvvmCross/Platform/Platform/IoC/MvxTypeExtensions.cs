@@ -1,19 +1,18 @@
-// MvxTypeExtensions.cs
+﻿// MvxTypeExtensions.cs
 
 // MvvmCross is licensed using Microsoft Public License (Ms-PL)
 // Contributions and inspirations noted in readme.md and license.txt
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using MvvmCross.Platform.Exceptions;
+
 namespace MvvmCross.Platform.IoC
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-
-    using MvvmCross.Platform.Exceptions;
-
     public static class MvxTypeExtensions
     {
         public static IEnumerable<Type> ExceptionSafeGetTypes(this Assembly assembly)
@@ -106,12 +105,17 @@ namespace MvvmCross.Platform.IoC
             }
         }
 
+        public static bool IsGenericPartiallyClosed(this Type type) =>
+            type.GetTypeInfo().IsGenericType
+            && type.GetTypeInfo().ContainsGenericParameters
+            && type.GetGenericTypeDefinition() != type;
+
         public class ServiceTypeAndImplementationTypePair
         {
             public ServiceTypeAndImplementationTypePair(List<Type> serviceTypes, Type implementationType)
             {
-                this.ImplementationType = implementationType;
-                this.ServiceTypes = serviceTypes;
+                ImplementationType = implementationType;
+                ServiceTypes = serviceTypes;
             }
 
             public List<Type> ServiceTypes { get; private set; }

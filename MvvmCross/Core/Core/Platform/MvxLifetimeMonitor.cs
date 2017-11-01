@@ -5,10 +5,10 @@
 //
 // Project Lead - Stuart Lodge, @slodge, me@slodge.com
 
+using System;
+
 namespace MvvmCross.Core.Platform
 {
-    using System;
-
     public abstract class MvxLifetimeMonitor : IMvxLifetime
     {
         protected void FireLifetimeChange(MvxLifetimeEvent which)
@@ -16,10 +16,6 @@ namespace MvvmCross.Core.Platform
             LifetimeChanged?.Invoke(this, new MvxLifetimeEventArgs(which));
         }
 
-        #region Implementation of IMvxLifetime
-
         public event EventHandler<MvxLifetimeEventArgs> LifetimeChanged;
-
-        #endregion Implementation of IMvxLifetime
     }
 }
